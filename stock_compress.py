@@ -2,17 +2,15 @@ import sys
 import os
 import struct
 
-
-
 def lzw_compress_data(uncompressed_bytes):
-    # Initialize dictionary with standard ASCII (0-255)
+    # Initialization
     dict_size = 256
     dictionary = {bytes([i]): i for i in range(dict_size)}
 
     w = b""
     compressed_data = []
 
-    # Iterate through every byte in the input
+    # Iteration
     for byte_val in uncompressed_bytes:
         c = bytes([byte_val])
         wc = w + c
@@ -20,7 +18,6 @@ def lzw_compress_data(uncompressed_bytes):
         if wc in dictionary:
             w = wc
         else:
-            # Output the code for the known pattern w
             compressed_data.append(dictionary[w])
 
             if dict_size < 65536:
@@ -36,7 +33,7 @@ def lzw_compress_data(uncompressed_bytes):
 
 
 def lzw_decompress_data(compressed_codes):
-    # Initialize dictionary with standard ASCII
+    # Initialization
     dict_size = 256
     dictionary = {i: bytes([i]) for i in range(dict_size)}
 
@@ -98,21 +95,18 @@ def decompress_file(input_file, output_file):
         print(f"Reading {input_file}...")
         compressed_codes = []
 
-        # 1. Read Binary Input (2 bytes at a time)
         with open(input_file, 'rb') as f_in:
             while True:
                 chunk = f_in.read(2)
                 if not chunk:
                     break
-                # Unpack 2 bytes back into an integer
                 code = struct.unpack('>H', chunk)[0]
                 compressed_codes.append(code)
 
-        # 2. Run LZW Decompression
+        # LZW Decompression
         print("Running LZW decompression...")
         data = lzw_decompress_data(compressed_codes)
 
-        # 3. Write Output
         print(f"Writing to {output_file}...")
         with open(output_file, 'wb') as f_out:
             f_out.write(data)
@@ -122,7 +116,6 @@ def decompress_file(input_file, output_file):
     except Exception as e:
         print(f"Error during decompression: {e}")
         sys.exit(1)
-
 
 def main():
     if len(sys.argv) != 4:
@@ -139,16 +132,15 @@ def main():
         print(f"Error: Input file '{input_file}' not found.")
         sys.exit(1)
 
-    # Handle 'c' or '-c' for compression
+    # 'c' or '-c' for compression
     if mode in ['c', '-c']:
         compress_file(input_file, output_file)
-    # Handle 'd' or '-d' for decompression
+    # 'd' or '-d' for decompression
     elif mode in ['d', '-d']:
         decompress_file(input_file, output_file)
     else:
         print(f"Error: Unknown mode '{mode}'. Use 'c' for compress or '-d' for decompress.")
         sys.exit(1)
-
 
 if __name__ == "__main__":
     main()
